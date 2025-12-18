@@ -37,7 +37,7 @@ app.use('/',feedRoute)
 
 // DEFAULT ROUTE
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("we are comming sonn!");
 });
 
 // ================================
@@ -115,4 +115,5 @@ connectDB()
   .catch((err) => {
     console.log("Database connection failed", err);
   });
+
 
