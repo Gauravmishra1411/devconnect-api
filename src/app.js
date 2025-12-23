@@ -19,7 +19,7 @@ const port = 8000;
 // MIDDLEWARE
  
 app.use(cors({
-  origin: "https://dev-connect-silk.vercel.app", // frontend URL
+  origin: "http://localhost:5173", // frontend URL
   credentials: true,               // allow cookies
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   // allowedHeaders: ["Content-Type", "Authorization"]
