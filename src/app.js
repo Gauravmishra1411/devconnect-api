@@ -19,7 +19,7 @@ const port = 8000;
 // MIDDLEWARE
  
 app.use(cors({
-  origin: "https://devconnect-api.vercel.app/", // frontend URL
+  origin: "https://dev-connect-silk.vercel.app/, // frontend URL
   credentials: true,               // allow cookies
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   // allowedHeaders: ["Content-Type", "Authorization"]
@@ -115,6 +115,7 @@ connectDB()
   .catch((err) => {
     console.log("Database connection failed", err);
   });
+
 
 
 
