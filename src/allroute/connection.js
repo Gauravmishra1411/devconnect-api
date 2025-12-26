@@ -1,4 +1,4 @@
- const express = require("express");
+const express = require("express");
 const router = express.Router();
 const auth = require("../authentication/auth");
 const User = require("../model/User");
@@ -10,16 +10,18 @@ router.post("/connection/send/:status/:toUserId", auth, async (req, res) => {
     const loggedUserId = req.user._id;
     const { toUserId, status } = req.params;
 
-    const allowStatus = ["intersted", "rejected"];
+    const allowStatus = ["interested", "rejected"];
 
     if (!allowStatus.includes(status)) {
       return res.status(400).json({ message: "Invalid request status." });
     }
-//cant send the req yourself
+    //cant send the req yourself
     if (toUserId == loggedUserId) {
-      return res.status(400).json({ message: "You cannot send a request to yourself." });
+      return res
+        .status(400)
+        .json({ message: "You cannot send a request to yourself." });
     }
-//to chech the user exest the db
+    //to chech the user exest the db
     const toUser = await User.findById(toUserId);
     if (!toUser) {
       return res.status(404).json({ message: "Target user not found." });
@@ -28,12 +30,14 @@ router.post("/connection/send/:status/:toUserId", auth, async (req, res) => {
     const existingReq = await Connectionrequest.findOne({
       $or: [
         { fromUserId: loggedUserId, toUserId: toUserId },
-        { fromUserId: toUserId, toUserId: loggedUserId }
-      ]
+        { fromUserId: toUserId, toUserId: loggedUserId },
+      ],
     });
 
     if (existingReq) {
-      return res.status(400).json({ message: "Connection request already exists!" });
+      return res
+        .status(400)
+        .json({ message: "Connection request already exists!" });
     }
 
     const sendConnection = new Connectionrequest({
@@ -47,55 +51,64 @@ router.post("/connection/send/:status/:toUserId", auth, async (req, res) => {
     res.status(200).json({
       message: `${req.user.firstName} has sent a request to ${toUser.firstName}`,
     });
-
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Something went wrong" });
   }
 });
 
-
 // Accept connection request
-router.post("/connection/request/:status/:torecivedid", auth, async (req, res) => {
-  try {
-    const loggedUser = req.user._id;
-    const { status, torecivedid } = req.params;
+router.post(
+  "/connection/request/:status/:torecivedid",
+  auth,
+  async (req, res) => {
+    try {
+      const loggedUser = req.user._id;
+      const { status, torecivedid } = req.params;
 
-    if (status !== "accepted") {
-      return res.status(400).json({
-        message: "Invalid status. Only accepted is allowed."
+      const allowed = ["accepted", "ignore"];
+      if (!allowed.includes(status)) {
+        return res.status(400).json({
+          message: "Invalid status. Only accepted is allowed.",
+        });
+      }
+
+      // if (status !== "rejected","rejected") {
+      //   return res.status(400).json({
+      //     message: "Invalid status. Only accepted is allowed.",
+      //   });
+      // }
+
+      // if (torecivedid == fromUser) {
+      //   return res.status(400).json({
+      //     message: "You cannot accept your own request."
+      //   });
+      // }
+
+      const connectionRequest = await Connectionrequest.findOne({
+        _id: torecivedid,
+        toUserId: loggedUser,
+        status: "interested",
       });
-    }
 
-    // if (torecivedid == fromUser) {
-    //   return res.status(400).json({
-    //     message: "You cannot accept your own request."
-    //   });
-    // }
+      if (!connectionRequest) {
+        return res.status(404).json({
+          message: "No valid connection request found to accept.",
+        });
+      }
 
-    const connectionRequest = await Connectionrequest.findOne({
-       _id:torecivedid,
-      toUserId: loggedUser,
-      status: "intersted"
-    });
+      connectionRequest.status = status;
+      await connectionRequest.save();
 
-    if (!connectionRequest) {
-      return res.status(404).json({
-        message: "No valid connection request found to accept."
+      res.status(200).json({
+        message: `Connection request ${status}  successfully!`,
+        data: connectionRequest,
       });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ message: "Server error" });
     }
-
-    connectionRequest.status = "accepted";
-    await connectionRequest.save();
-
-    res.status(200).json({
-      message: "Connection request accepted successfully!", data:connectionRequest
-    });
-
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Server error" });
   }
-});
+);
 
 module.exports = router;

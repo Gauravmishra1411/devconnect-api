@@ -65,7 +65,7 @@ app.get("/byfindid/:id", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json(userdetail);
+    res.status(200).json({data:userdetail});
   } catch (err) {
     console.log("Error fetching user:", err);
     res.status(500).json({ message: "Error fetching user" });
@@ -77,7 +77,7 @@ app.get("/byfindid/:id", async (req, res) => {
 // ================================
 // Update user by ID
 // ================================
-app.patch("/update/:userid", async (req, res) => {
+app.put("/update/:userid", async (req, res) => {
   try {
     const userid = req.params.userid;
     const data = req.body;

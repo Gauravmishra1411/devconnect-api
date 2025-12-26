@@ -10,7 +10,7 @@ router.post("/connection/send/:status/:toUserId", auth, async (req, res) => {
     const loggedUserId = req.user._id;
     const { toUserId, status } = req.params;
 
-    const allowStatus = ["intersted", "rejected"];
+    const allowStatus = ["interested", "rejected"];
     if (!allowStatus.includes(status)) {
       return res.status(400).json({ message: "Invalid request status." });
     }
@@ -70,7 +70,7 @@ router.post("/connection/request/:status/:torecivedid", auth, async (req, res) =
 
     const connectionRequest = await Connectionrequest.findOne({
       toUserId: torecivedid,
-      status: "intersted"
+      status: "interested"
     });
 
     if (!connectionRequest) {
